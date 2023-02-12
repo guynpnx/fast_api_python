@@ -4,7 +4,9 @@ Screenshot
 
 ![screenshot1](https://github.com/guynpnx/fast_api_python/blob/main/images/Screenshot%202566-02-12%20at%2017.22.28.png)
 
-### main.py
+#### ตัวอย่างโค้ดบางส่วน
+
+##### main.py
         from fastapi import FastAPI
         import models,database
         from routers import blog,user,authentication
@@ -18,7 +20,7 @@ Screenshot
         app.include_router(user.router)
         app.include_router(blog.router)
 
-### router/blog.py
+##### router/blog.py
         from fastapi import APIRouter ,status,Depends,HTTPException
         from typing import List
         from sqlalchemy.orm import Session
@@ -53,3 +55,23 @@ Screenshot
         @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT,)
         def destroy(id:int,db:Session = Depends(get_db),currant_user:schemas.UserBase = Depends(oauth2.get_current_user)):
             return blog.delete(id,db)
+##### router/user.py
+        from fastapi import APIRouter ,status,Depends
+        from sqlalchemy.orm import Session
+        import schemas 
+        from database import get_db
+        from repositories import user
+
+        router = APIRouter(
+            prefix="/user",
+            tags=["Users"]
+        )
+
+        @router.post("/",response_model=schemas.UserResponse,status_code=status.HTTP_201_CREATED)
+        def create(request : schemas.UserRequest ,db:Session = Depends(get_db)):
+            return user.create(request,db)
+
+        @router.get("/{id}",response_model=schemas.UserResponse)
+        def get_user_by_id(id:int,db:Session = Depends(get_db)):
+            return user.get_user_by_id(id,db)
+            
